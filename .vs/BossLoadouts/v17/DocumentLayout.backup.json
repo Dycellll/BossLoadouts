@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6AF1B971-5B22-459B-A68C-B373928C6528}|BossLoadouts.csproj|c:\\users\\fale4\\documents\\my games\\terraria\\tmodloader\\modsources\\bossloadouts\\content\\loadout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6AF1B971-5B22-459B-A68C-B373928C6528}|BossLoadouts.csproj|solutionrelative:content\\loadout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AF1B971-5B22-459B-A68C-B373928C6528}|BossLoadouts.csproj|c:\\users\\fale4\\documents\\my games\\terraria\\tmodloader\\modsources\\bossloadouts\\content\\loadouts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6AF1B971-5B22-459B-A68C-B373928C6528}|BossLoadouts.csproj|solutionrelative:content\\loadouts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AF1B971-5B22-459B-A68C-B373928C6528}|BossLoadouts.csproj|c:\\users\\fale4\\documents\\my games\\terraria\\tmodloader\\modsources\\bossloadouts\\content\\loadoutitems\\loadoutitems.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6AF1B971-5B22-459B-A68C-B373928C6528}|BossLoadouts.csproj|solutionrelative:content\\loadoutitems\\loadoutitems.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "LoadoutItems.cs",
+              "DocumentMoniker": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\Content\\LoadoutItems\\LoadoutItems.cs",
+              "RelativeDocumentMoniker": "Content\\LoadoutItems\\LoadoutItems.cs",
+              "ToolTip": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\Content\\LoadoutItems\\LoadoutItems.cs",
+              "RelativeToolTip": "Content\\LoadoutItems\\LoadoutItems.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-02T17:17:31.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Loadouts.cs",
+              "DocumentMoniker": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\Content\\Loadouts.cs",
+              "RelativeDocumentMoniker": "Content\\Loadouts.cs",
+              "ToolTip": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\Content\\Loadouts.cs",
+              "RelativeToolTip": "Content\\Loadouts.cs",
+              "ViewState": "AgIAACYAAAAAAAAAAAAQwD0AAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-02T16:25:55.542Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Loadout.cs",
+              "DocumentMoniker": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\Content\\Loadout.cs",
+              "RelativeDocumentMoniker": "Content\\Loadout.cs",
+              "ToolTip": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\Content\\Loadout.cs",
+              "RelativeToolTip": "Content\\Loadout.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAgwEMAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-01T22:22:12.399Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

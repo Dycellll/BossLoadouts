@@ -1,0 +1,5 @@
+displayName = Boss Loadouts
+author = Dycel
+version = 0.1
+modReferences = CalamityMod, InfernumMode
+buildIgnore = *.csproj, *.sln, obj\*, bin\*, .vs\*
