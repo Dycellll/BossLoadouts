@@ -1,5 +1,12 @@
-﻿using BossLoadouts.Systems;
-using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BossLoadouts.Common.Systems;
+using BossLoadouts.Systems;
+using BossLoadouts.UI;
+using CalamityMod.World.Planets;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
@@ -7,70 +14,106 @@ using Terraria.GameInput;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
+using Folder = BossLoadouts.Common.Systems.Folder;
 
-namespace BossLoadouts.UI
+namespace BossLoadouts.Content.UI
 {
-    public class BossLoadoutsUI : UIState
+    class BossLoadoutsUI : UIState
     {
-        public UIPanel MainPanel { get; private set; }
-        public UIList LoadoutList { get; private set; }
-        public UITextPanel<string> NewLoadoutButton { get; private set; }
-        public UITextPanel<string> CloseButton { get; private set; }
-
+        public UIPanel panel;
+        public UIHeader titleHeader;
+        public UIList foldersList;
+        public UITextPanel<string> NewFolderButton;
+        public UITextPanel<string> closeButton;
         public override void OnInitialize()
         {
-            MainPanel = new UIPanel();
-            MainPanel.Width.Set(600f, 0f);
-            MainPanel.Height.Set(400f, 0f);
-            MainPanel.HAlign = 0.5f;
-            MainPanel.VAlign = 0.5f;
-            MainPanel.SetPadding(12f);
-            Append(MainPanel);
+            panel = new UIPanel
+            {
+                HAlign = 0.5f,
+                VAlign = 0.5f,
+                Width = { Pixels = 500 },
+                Height = { Pixels = 500 },
+            };
+            Append(panel);
 
-            var title = new UIText("Boss Loadouts", 1.5f);
-            title.HAlign = 0.5f;
-            title.Top.Set(15f, 0f);
-            MainPanel.Append(title);
+            titleHeader = new UIHeader("Boss Loadouts")
+            {
+                HAlign = 0.5f,
+                VAlign = 0.05f,
+            };
+            panel.Append(titleHeader);
 
-            LoadoutList = new UIList();
-            LoadoutList.Width.Set(-25f, 1f);
-            LoadoutList.Height.Set(-100f, 1f);
-            LoadoutList.Top.Set(20f, 0f);
-            LoadoutList.ListPadding = 5f;
-            MainPanel.Append(LoadoutList);
+            foldersList = new UIList
+            {
+                HAlign = 0.05f,
+                VAlign = 0.3f,
+                Width = { Percent = 0.9f },
+                Height = { Percent = 0.5f },
+                ListPadding = 5f,
+            };
+            panel.Append(foldersList);
 
-            var scrollbar = new UIScrollbar();
-            scrollbar.Height.Set(0f, .7f);
-            scrollbar.Top.Set(50f, 0f);
-            scrollbar.HAlign = 1f;
-            MainPanel.Append(scrollbar);
-            LoadoutList.SetScrollbar(scrollbar);
+            var foldersScrollbar = new UIScrollbar
+            {
+                HAlign = 0.95f,
+                VAlign = 0.3f,
+                Height = { Percent = 0.5f },
+            };
+            panel.Append(foldersScrollbar);
+            foldersList.SetScrollbar(foldersScrollbar);
 
-            NewLoadoutButton = new UITextPanel<string>("Save Current Loadout");
-            NewLoadoutButton.Width.Set(-10f, 0.5f);
-            NewLoadoutButton.Height.Set(30f, 0f);
-            NewLoadoutButton.VAlign = 1f;
-            NewLoadoutButton.WithFadedMouseOver();
-            MainPanel.Append(NewLoadoutButton);
+            NewFolderButton = new UITextPanel<string>("Create New Folder")
+            {
+                HAlign = 0.5f,
+                VAlign = 0.85f,
+            };
+            NewFolderButton.WithFadedMouseOver();
+            NewFolderButton.OnLeftClick += (evt, str) =>
+            {
+                CreateNewFolder();
+            };
+            panel.Append(NewFolderButton);
 
-            CloseButton = new UITextPanel<string>("Close");
-            CloseButton.Width.Set(-10f, 0.5f);
-            CloseButton.Height.Set(30f, 0f);
-            CloseButton.VAlign = 1f;
-            CloseButton.HAlign = 1f;
-            CloseButton.WithFadedMouseOver();
-            CloseButton.OnLeftClick += (evt, element) =>
+            closeButton = new UITextPanel<string>("Close")
+            {
+                HAlign = 0.5f,
+                VAlign = 0.95f,
+            };
+            closeButton.WithFadedMouseOver();
+            closeButton.OnLeftClick += (evt, str) =>
             {
                 var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
                 loadoutsSystem.HideUI();
+                Main.playerInventory = false;
             };
-            MainPanel.Append(CloseButton);
+            panel.Append(closeButton);
+
+            RefreshFolders();
         }
+
+        private void CreateNewFolder()
+        {
+            BossLoadoutsSystem loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
+            loadoutsSystem.ShowUI("createfolder");
+            RefreshFolders();
+        }
+
+        public void RefreshFolders()
+        {
+            foldersList.Clear();
+            Main.NewText($"Folders count: {FoldersManager.Folders.Count}");
+            foreach (var folder in FoldersManager.Folders)
+            {
+                var folderEntry = new UIFolderEntry(folder.Name);
+                foldersList.Add(folderEntry);
+            }
+        }
+
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             base.DrawSelf(spriteBatch);
-            if (MainPanel.ContainsPoint(Main.MouseScreen))
+            if (panel.ContainsPoint(Main.MouseScreen))
             {
                 Main.LocalPlayer.mouseInterface = true;
                 PlayerInput.LockVanillaMouseScroll("uiMSL");

@@ -19,7 +19,7 @@ namespace BossLoadouts.Content
                 var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
                 if (loadoutsSystem._loadoutsInterface.CurrentState == null)
                 {
-                    loadoutsSystem.ShowUI();
+                    loadoutsSystem.ShowUI("loadouts");
                     Main.playerInventory = false;
                 }
                 else
