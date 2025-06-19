@@ -23,15 +23,16 @@ namespace BossLoadouts.Content.UI
         private UITextInputField folderNameInput;
         public UITextPanel<string> createButton;
         public UITextPanel<string> cancelButton;
-        public override void OnActivate()
+        public override void OnInitialize()
         {
             panel = new UIPanel
             {
                 HAlign = 0.5f,
                 VAlign = 0.5f,
-                Width = { Pixels = 400 },
-                Height = { Pixels = 400 },
+                Width = { Pixels = 500 },
+                Height = { Pixels = 500 },
             };
+            panel.BackgroundColor.A = 100;
             Append(panel);
 
             titleHeader = new UIHeader("Create New Folder")
@@ -43,7 +44,7 @@ namespace BossLoadouts.Content.UI
 
             folderNameInput = new UITextInputField();
             folderNameInput.HAlign = 0.5f;
-            folderNameInput.VAlign = 0.4f;
+            folderNameInput.VAlign = 0.35f;
             folderNameInput.Width.Set(300f, 0.5f);
             folderNameInput.Height.Set(75f, 0f);
             folderNameInput.PlaceholderText = "My Folder";
@@ -52,7 +53,7 @@ namespace BossLoadouts.Content.UI
             createButton = new UITextPanel<string>("Create Folder")
             {
                 HAlign = 0.5f,
-                VAlign = 0.7f,
+                VAlign = 0.85f,
             };
             createButton.WithFadedMouseOver();
             createButton.OnLeftClick += (evt, element) =>
@@ -63,7 +64,9 @@ namespace BossLoadouts.Content.UI
                     return;
                 }
                 Folder newFolder = new Folder(folderNameInput.Text);
+                folderNameInput.Text = "";
                 FoldersManager.Folders.Add(newFolder);
+                SaveLoadSystem.SaveGlobalData();
                 BossLoadoutsSystem loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
                 loadoutsSystem.LoadoutsUI.RefreshFolders();
                 loadoutsSystem.ShowUI("loadouts");
@@ -73,7 +76,7 @@ namespace BossLoadouts.Content.UI
             cancelButton = new UITextPanel<string>("Cancel")
             {
                 HAlign = 0.5f,
-                VAlign = 0.9f,
+                VAlign = 0.95f,
             };
             cancelButton.WithFadedMouseOver();
             cancelButton.OnLeftClick += (evt, element) =>

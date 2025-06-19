@@ -65,6 +65,7 @@ namespace BossLoadouts.UI
             else
             {
                 ResetKeyStates();
+                Main.drawingPlayerChat = false;
             }
         }
 
@@ -108,6 +109,7 @@ namespace BossLoadouts.UI
         {
             Focused = false;
             Main.blockInput = false;
+            Main.drawingPlayerChat = false;
         }
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
@@ -158,6 +160,7 @@ namespace BossLoadouts.UI
         public override void OnDeactivate()
         {
             Unfocus();
+            Main.drawingPlayerChat = false;
             base.OnDeactivate();
             _pixelTexture?.Dispose();
         }

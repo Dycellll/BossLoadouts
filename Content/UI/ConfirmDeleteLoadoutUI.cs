@@ -10,17 +10,19 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
 
-class ConfirmDeleteUI : UIState
+class ConfirmDeleteLoadoutUI : UIState
 {
     private UIPanel panel;
     private UIText message;
     private UITextPanel<string> yesButton;
     private UITextPanel<string> noButton;
-    public Folder folderToDelete;
+    public Loadout loadoutToDelete;
+    public Folder currentFolder;
 
-    public ConfirmDeleteUI(Folder folder)
+    public ConfirmDeleteLoadoutUI(Loadout loadout, Folder CurrentFolder)
     {
-        folderToDelete = folder;
+        loadoutToDelete = loadout;
+        currentFolder = CurrentFolder;
 
         panel = new UIPanel
         {
@@ -31,7 +33,7 @@ class ConfirmDeleteUI : UIState
         };
         Append(panel);
 
-        message = new UIText("Are you sure you want to \ndelete this folder?")
+        message = new UIText("Are you sure you want to \ndelete this loadout?")
         {
             HAlign = 0.5f,
             VAlign = 0.1f,
@@ -46,7 +48,7 @@ class ConfirmDeleteUI : UIState
             VAlign = 0.7f,
         };
         yesButton.WithFadedMouseOver();
-        yesButton.OnLeftClick += (evt, element) => DeleteFolder();
+        yesButton.OnLeftClick += (evt, element) => DeleteLoadout();
         panel.Append(yesButton);
 
         noButton = new UITextPanel<string>("No")
@@ -60,33 +62,34 @@ class ConfirmDeleteUI : UIState
         noButton.OnLeftClick += (evt, element) =>
         {
             var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
-            loadoutsSystem.ShowUI("loadouts");
+            loadoutsSystem.ShowUI("folderloadouts");
         };
         panel.Append(noButton);
+        currentFolder = CurrentFolder;
     }
 
-    private void DeleteFolder()
+    private void DeleteLoadout()
     {
-        if (folderToDelete == null)
+        if (loadoutToDelete == null)
         {
-            Main.NewText("Error: folderToDelete is null!", Color.Red);
+            Main.NewText("Error: loadoutToDelete is null!", Color.Red);
             return;
         }
 
-        bool removed = FoldersManager.Folders.Remove(folderToDelete);
+        bool removed = currentFolder.Loadouts.Remove(loadoutToDelete);
         if (removed)
         {
-            Main.NewText($"Folder '{folderToDelete.Name}' deleted successfully!", 0, 255, 0);
+            Main.NewText($"Loadout '{loadoutToDelete.Name}' deleted successfully!", 0, 255, 0);
         }
         else
         {
-            Main.NewText($"Failed to delete folder '{folderToDelete.Name}'. It may not exist.", 255, 0, 0);
+            Main.NewText($"Failed to delete loadout '{loadoutToDelete.Name}'. It may not exist.", 255, 0, 0);
         }
 
-        var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
         SaveLoadSystem.SaveGlobalData();
-        loadoutsSystem.ShowUI("loadouts");
-        loadoutsSystem.LoadoutsUI.RefreshFolders();
+        var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
+        loadoutsSystem.ShowUI("folderloadouts");
+        loadoutsSystem.FolderLoadoutsUI.RefreshLoadouts();
     }
 
     protected override void DrawSelf(SpriteBatch spriteBatch)

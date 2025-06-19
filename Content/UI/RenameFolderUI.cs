@@ -4,6 +4,7 @@ using BossLoadouts.UI;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
+using Terraria.GameInput;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
@@ -17,12 +18,10 @@ namespace BossLoadouts.Content.UI
         private UITextInputField folderNameInput;
         public UITextPanel<string> renameButton;
         public UITextPanel<string> cancelButton;
-        private Folder folderToRename;
+        public Folder folderToRename;
 
-        public override void OnActivate()
+        public override void OnInitialize()
         {
-            base.OnActivate();
-
             panel = new UIPanel
             {
                 HAlign = 0.5f,
@@ -44,7 +43,7 @@ namespace BossLoadouts.Content.UI
             folderNameInput.VAlign = 0.4f;
             folderNameInput.Width.Set(300f, 0f);
             folderNameInput.Height.Set(75f, 0f);
-            folderNameInput.PlaceholderText = "Folder Name";
+            folderNameInput.PlaceholderText = folderToRename.Name;
             panel.Append(folderNameInput);
 
             renameButton = new UITextPanel<string>("Rename Folder")
@@ -60,9 +59,10 @@ namespace BossLoadouts.Content.UI
                     Main.NewText("Folder name cannot be empty!", 255, 0, 0);
                     return;
                 }
-                folderToRename.Name = folderNameInput.Text;
                 FoldersManager.Folders.Remove(folderToRename);
-                FoldersManager.Folders.Add(folderToRename); // To refresh order or save changes
+                folderToRename.Name = folderNameInput.Text;
+                FoldersManager.Folders.Add(folderToRename);
+                SaveLoadSystem.SaveGlobalData();
                 var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
                 loadoutsSystem.LoadoutsUI.RefreshFolders();
                 loadoutsSystem.ShowUI("loadouts");
@@ -87,6 +87,16 @@ namespace BossLoadouts.Content.UI
         {
             folderToRename = folder;
             folderNameInput.Text = folder.Name;
+        }
+
+        protected override void DrawSelf(SpriteBatch spriteBatch)
+        {
+            base.DrawSelf(spriteBatch);
+            if (panel.ContainsPoint(Main.MouseScreen))
+            {
+                Main.LocalPlayer.mouseInterface = true;
+                PlayerInput.LockVanillaMouseScroll("uiMSL");
+            }
         }
     }
 }

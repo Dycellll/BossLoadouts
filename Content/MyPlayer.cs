@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BossLoadouts.Common.Systems;
 using BossLoadouts.Systems;
 using Terraria;
 using Terraria.GameInput;

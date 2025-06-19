@@ -13,9 +13,9 @@ namespace BossLoadouts.Systems
         internal BossLoadoutsUI LoadoutsUI;
         internal CreateFolderUI CreateFolderUI;
         internal RenameFolderUI RenameFolderUI;
-        internal ConfirmDeleteUI ConfirmDeleteUI;
         internal FolderLoadoutsUI FolderLoadoutsUI;
         internal RenameLoadoutUI RenameLoadoutUI;
+        internal BossDownedEditorUI DownedEditorUI;
         public UserInterface _loadoutsInterface;
 
         public override void Load()
@@ -25,11 +25,9 @@ namespace BossLoadouts.Systems
                 LoadoutsUI = new BossLoadoutsUI();
                 CreateFolderUI = new CreateFolderUI();
                 RenameFolderUI = new RenameFolderUI();
-                FolderLoadoutsUI = new FolderLoadoutsUI();
-                ConfirmDeleteUI = new ConfirmDeleteUI();
                 RenameLoadoutUI = new RenameLoadoutUI();
+                DownedEditorUI = new BossDownedEditorUI();
                 _loadoutsInterface = new UserInterface();
-                _loadoutsInterface.SetState(null);
             }
             Main.blockInput = false;
         }
@@ -39,28 +37,33 @@ namespace BossLoadouts.Systems
             if (type.ToLower() == "loadouts")
             {
                 _loadoutsInterface?.SetState(LoadoutsUI);
+                LoadoutsUI.RefreshFolders();
             }
             else if (type.ToLower() == "renamefolder")
             {
-                _loadoutsInterface?.SetState(RenameFolderUI ??= new RenameFolderUI());
-            }
-            else if(type.ToLower() == "confirmdelete")
-            {
-                _loadoutsInterface?.SetState(ConfirmDeleteUI ??= new ConfirmDeleteUI());
+                _loadoutsInterface?.SetState(RenameFolderUI);
             }
             else if (type.ToLower() == "renameloadout")
             {
-                _loadoutsInterface?.SetState(RenameLoadoutUI ??= new RenameLoadoutUI());
+                _loadoutsInterface?.SetState(RenameLoadoutUI);
             }
-            else
+            else if (type.ToLower() == "createfolder")
             {
-                _loadoutsInterface?.SetState(CreateFolderUI ??= new CreateFolderUI());
+                _loadoutsInterface?.SetState(CreateFolderUI);
+            }
+            else if (type.ToLower() == "folderloadouts")
+            {
+                _loadoutsInterface?.SetState(FolderLoadoutsUI);
+            }
+            else if (type.ToLower() == "downededitor")
+            {
+                _loadoutsInterface?.SetState(DownedEditorUI);
             }
         }
 
         public void ShowLoadoutsUIForFolder(Folder folder)
         {
-            FolderLoadoutsUI.SetFolder(folder);
+            FolderLoadoutsUI = new FolderLoadoutsUI(folder);
             _loadoutsInterface?.SetState(FolderLoadoutsUI);
         }
 

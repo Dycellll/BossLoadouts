@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using BossLoadouts.Common.Systems;
 using BossLoadouts.Systems;
 using BossLoadouts.UI;
-using CalamityMod.World.Planets;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
@@ -14,7 +13,6 @@ using Terraria.GameInput;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
-using Folder = BossLoadouts.Common.Systems.Folder;
 
 namespace BossLoadouts.Content.UI
 {
@@ -46,18 +44,19 @@ namespace BossLoadouts.Content.UI
             foldersList = new UIList
             {
                 HAlign = 0.05f,
-                VAlign = 0.3f,
+                VAlign = 0.35f,
                 Width = { Percent = 0.9f },
-                Height = { Percent = 0.5f },
+                Height = { Percent = 0.45f },
                 ListPadding = 5f,
+                ManualSortMethod = (e) => { }
             };
             panel.Append(foldersList);
 
             var foldersScrollbar = new UIScrollbar
             {
                 HAlign = 0.95f,
-                VAlign = 0.3f,
-                Height = { Percent = 0.5f },
+                VAlign = 0.35f,
+                Height = { Percent = 0.45f },
             };
             panel.Append(foldersScrollbar);
             foldersList.SetScrollbar(foldersScrollbar);
@@ -65,7 +64,7 @@ namespace BossLoadouts.Content.UI
             NewFolderButton = new UITextPanel<string>("Create New Folder")
             {
                 HAlign = 0.5f,
-                VAlign = 0.85f,
+                VAlign = 0.75f,
             };
             NewFolderButton.WithFadedMouseOver();
             NewFolderButton.OnLeftClick += (evt, str) =>
@@ -73,6 +72,19 @@ namespace BossLoadouts.Content.UI
                 CreateNewFolder();
             };
             panel.Append(NewFolderButton);
+
+            var downedBossesButton = new UITextPanel<string>("Downed Bosses Editor")
+            {
+                HAlign = 0.5f,
+                VAlign = 0.85f,
+            };
+            downedBossesButton.WithFadedMouseOver();
+            downedBossesButton.OnLeftClick += (evt, str) =>
+            {
+                var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
+                loadoutsSystem.ShowUI("downededitor");
+            };
+            panel.Append(downedBossesButton);
 
             closeButton = new UITextPanel<string>("Close")
             {
@@ -101,14 +113,12 @@ namespace BossLoadouts.Content.UI
         public void RefreshFolders()
         {
             foldersList.Clear();
-            Main.NewText($"Folders count: {FoldersManager.Folders.Count}");
             foreach (var folder in FoldersManager.Folders)
             {
-                var folderEntry = new UIFolderEntry(folder.Name);
+                var folderEntry = new UIFolderEntry(folder);
                 foldersList.Add(folderEntry);
             }
         }
-
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
