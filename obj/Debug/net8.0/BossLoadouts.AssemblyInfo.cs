@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BossLoadouts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc3b97a677084313c9b9d8485bce79c17d6b6052")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5207bd3a8ad2e1a49b263d64e85b7f43e036a787")]
 [assembly: System.Reflection.AssemblyProductAttribute("BossLoadouts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BossLoadouts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

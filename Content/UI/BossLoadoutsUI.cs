@@ -46,7 +46,7 @@ namespace BossLoadouts.Content.UI
                 HAlign = 0.05f,
                 VAlign = 0.35f,
                 Width = { Percent = 0.9f },
-                Height = { Percent = 0.45f },
+                Height = { Percent = 0.35f },
                 ListPadding = 5f,
                 ManualSortMethod = (e) => { }
             };
@@ -56,7 +56,7 @@ namespace BossLoadouts.Content.UI
             {
                 HAlign = 0.95f,
                 VAlign = 0.35f,
-                Height = { Percent = 0.45f },
+                Height = { Percent = 0.35f },
             };
             panel.Append(foldersScrollbar);
             foldersList.SetScrollbar(foldersScrollbar);
@@ -64,7 +64,7 @@ namespace BossLoadouts.Content.UI
             NewFolderButton = new UITextPanel<string>("Create New Folder")
             {
                 HAlign = 0.5f,
-                VAlign = 0.75f,
+                VAlign = 0.65f,
             };
             NewFolderButton.WithFadedMouseOver();
             NewFolderButton.OnLeftClick += (evt, str) =>
@@ -72,6 +72,19 @@ namespace BossLoadouts.Content.UI
                 CreateNewFolder();
             };
             panel.Append(NewFolderButton);
+
+            var permanentBuffsButton = new UITextPanel<string>("Permanent Buffs Editor")
+            {
+                HAlign = 0.5f,
+                VAlign = 0.75f,
+            };
+            permanentBuffsButton.WithFadedMouseOver();
+            permanentBuffsButton.OnLeftClick += (evt, str) =>
+            {
+                var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
+                loadoutsSystem.ShowUI("buffseditor");
+            };
+            panel.Append(permanentBuffsButton);
 
             var downedBossesButton = new UITextPanel<string>("Downed Bosses Editor")
             {

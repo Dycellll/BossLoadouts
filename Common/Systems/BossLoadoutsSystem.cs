@@ -16,6 +16,7 @@ namespace BossLoadouts.Systems
         internal FolderLoadoutsUI FolderLoadoutsUI;
         internal RenameLoadoutUI RenameLoadoutUI;
         internal BossDownedEditorUI DownedEditorUI;
+        internal PermanentBuffsEditorUI BuffsEditorUI;
         public UserInterface _loadoutsInterface;
 
         public override void Load()
@@ -27,6 +28,7 @@ namespace BossLoadouts.Systems
                 RenameFolderUI = new RenameFolderUI();
                 RenameLoadoutUI = new RenameLoadoutUI();
                 DownedEditorUI = new BossDownedEditorUI();
+                BuffsEditorUI = new PermanentBuffsEditorUI();
                 _loadoutsInterface = new UserInterface();
             }
             Main.blockInput = false;
@@ -58,6 +60,10 @@ namespace BossLoadouts.Systems
             else if (type.ToLower() == "downededitor")
             {
                 _loadoutsInterface?.SetState(DownedEditorUI);
+            }
+            else if (type.ToLower() == "buffseditor")
+            {
+                _loadoutsInterface?.SetState(BuffsEditorUI);
             }
         }
 

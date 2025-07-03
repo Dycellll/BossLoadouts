@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using BossLoadouts.Systems;
+using CalamityMod;
+using CalamityMod.Buffs.Alcohol;
+using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -95,7 +101,6 @@ namespace BossLoadouts.Common.Systems
                 ModContent.GetInstance<BossLoadouts>().Logger.Error("Failed to save global data: " + ex);
             }
         }
-
 
         public static void LoadGlobalData()
         {
@@ -225,10 +230,149 @@ namespace BossLoadouts.Common.Systems
         public override void OnWorldLoad()
         {
             LoadGlobalData();
+            BossLoadoutsSystem loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
+            loadoutsSystem.HideUI();
         }
         public override void OnWorldUnload()
         {
             SaveGlobalData();
+            BossLoadoutsSystem loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
+            loadoutsSystem.HideUI();
+        }
+    }
+
+    class SaveLoadPlayer : ModPlayer
+    {
+        private int savedShroomLevel = 0;
+        private bool reTrippy = false;
+        public override void SaveData(TagCompound tag)
+        {
+            var modPlayer = Player.Calamity();
+            if (!modPlayer.trippy)
+            {
+                tag["shroomedLevel"] = 0;
+            }
+            else
+            {
+                tag["shroomedLevel"] = modPlayer.trippyLevel;
+            }
+        }
+
+        public override void LoadData(TagCompound tag)
+        {
+            savedShroomLevel = 0;
+            reTrippy = false;
+            if (tag.ContainsKey("shroomedLevel"))
+            {
+                int level = tag.GetInt("shroomedLevel");
+                var modPlayer = Player.Calamity();
+
+                if(level > 0)
+                {
+                    modPlayer.trippyLevel = level;
+                    modPlayer.trippy = level > 0;
+                }
+                else
+                {
+                    modPlayer.trippyLevel = 0;
+                    modPlayer.trippy = false;
+                    if (Player.HasBuff<Trippy>())
+                    {
+                        Player.ClearBuff(ModContent.BuffType<Trippy>());
+                    }
+                }
+            }
+            else if (tag.ContainsKey("shroomed"))
+            {
+                int level = tag.GetInt("shroomed");
+                var modPlayer = Player.Calamity();
+                if (level > 0)
+                {
+                    modPlayer.trippyLevel = level;
+                    modPlayer.trippy = level > 0;
+                }
+                else
+                {
+                    modPlayer.trippyLevel = 0;
+                    modPlayer.trippy = false;
+                    if (Player.HasBuff<Trippy>())
+                    {
+                        Player.ClearBuff(ModContent.BuffType<Trippy>());
+                    }
+                }
+            }
+        }
+
+        public override void OnEnterWorld()
+        {
+            var modPlayer = Player.Calamity();
+
+            if (modPlayer.trippyLevel > 0)
+            {
+                Player.AddBuff(ModContent.BuffType<Trippy>(), int.MaxValue);
+                modPlayer.trippy = true;
+            }
+            else
+            {
+                if (Player.HasBuff<Trippy>())
+                {
+                    Player.ClearBuff(ModContent.BuffType<Trippy>());
+                }
+                modPlayer.trippy = false;
+            }
+        }
+
+        public override void PostUpdateBuffs()
+        {
+            var modPlayer = Player.Calamity();
+            BossLoadoutsSystem loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
+
+            if (loadoutsSystem.BuffsEditorUI == null || loadoutsSystem.BuffsEditorUI.shroomedToggleButton == null)
+                return;
+
+            if (modPlayer.trippyLevel > 0 && (loadoutsSystem.BuffsEditorUI.shroomedToggleButton.BackgroundColor == Color.Green || loadoutsSystem.BuffsEditorUI.shroomedToggleButton.BackgroundColor == Color.DarkGreen))
+            {
+                if (!Player.HasBuff<Trippy>())
+                {
+                    Player.AddBuff(ModContent.BuffType<Trippy>(), 60);
+                }
+                modPlayer.trippy = true;
+            }
+            else
+            {
+                if (Player.HasBuff<Trippy>())
+                {
+                    Player.ClearBuff(ModContent.BuffType<Trippy>());
+                }
+                modPlayer.trippy = false;
+            }
+        }
+
+        public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genDust, ref PlayerDeathReason damageSource)
+        {
+            savedShroomLevel = Player.Calamity().trippyLevel;
+            if(savedShroomLevel != 0)
+            {
+                reTrippy = true;
+            }
+            else
+            {
+                reTrippy = false;
+            }
+            return base.PreKill(damage, hitDirection, pvp, ref playSound, ref genDust, ref damageSource);
+        }
+
+        public override void OnRespawn()
+        {
+            var modPlayer = Player.Calamity();
+
+            modPlayer.trippyLevel = savedShroomLevel;
+
+            if (reTrippy)
+            {
+                Player.AddBuff(ModContent.BuffType<Trippy>(), int.MaxValue);
+                modPlayer.trippy = true;
+            }
         }
     }
 }

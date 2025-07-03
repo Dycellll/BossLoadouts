@@ -78,8 +78,11 @@ public class Loadout
             modPlayer.pHeart = Powerups.Contains(ModContent.ItemType<PhantomHeart>());
             if (Powerups.Contains(ModContent.ItemType<CelestialOnion>()))
             {
-                modPlayer.extraAccessoryML = true;
-                player.extraAccessorySlots += 1;
+                if (!modPlayer.extraAccessoryML)
+                {
+                    modPlayer.extraAccessoryML = true;
+                    player.extraAccessorySlots += 1;
+                }
             }
             else
             {
