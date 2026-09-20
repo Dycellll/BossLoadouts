@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BossLoadouts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1990289d78c401d2154f12f2ec7f943cfb25986e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a512d52e0189cff7da075f945a0b40ccfe5be2a4")]
 [assembly: System.Reflection.AssemblyProductAttribute("BossLoadouts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BossLoadouts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
