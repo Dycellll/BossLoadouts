@@ -9,6 +9,8 @@ using BossLoadouts.UI;
 using Terraria.ModLoader.UI;
 using Terraria.GameInput;
 using System.IO;
+using BossLoadouts.Content;
+using System;
 
 namespace BossLoadouts.Content.UI
 {
@@ -21,6 +23,7 @@ namespace BossLoadouts.Content.UI
         private UITextPanel<string> cancelButton;
 
         public Loadout loadoutToRename;
+        public Folder folderContext;
 
         public void SetLoadout(Loadout loadout)
         {
@@ -70,7 +73,16 @@ namespace BossLoadouts.Content.UI
                 }
                 if (loadoutToRename != null)
                 {
+                    string oldName = loadoutToRename.Name;
                     loadoutToRename.Name = newName;
+
+                    var myPlayer = Main.LocalPlayer.GetModPlayer<MyPlayer>();
+                    if (folderContext != null
+                        && myPlayer.CurrentFolderName != null && myPlayer.CurrentFolderName.Equals(folderContext.Name, StringComparison.OrdinalIgnoreCase)
+                        && myPlayer.CurrentLoadoutName != null && myPlayer.CurrentLoadoutName.Equals(oldName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        myPlayer.CurrentLoadoutName = newName;
+                    }
                 }
                 SaveLoadSystem.SaveGlobalData();
                 var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();

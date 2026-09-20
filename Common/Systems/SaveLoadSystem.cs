@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using BossLoadouts.Systems;
-using CalamityMod;
-using CalamityMod.Buffs.Alcohol;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
@@ -18,6 +16,7 @@ namespace BossLoadouts.Common.Systems
     {
         public string Name { get; set; }
         public List<Loadout> Loadouts { get; set; } = new List<Loadout>();
+        public float ScrollPosition { get; set; } = 0f;
         public Folder(string name)
         {
             Name = name;
@@ -26,6 +25,14 @@ namespace BossLoadouts.Common.Systems
     static class FoldersManager
     {
         public static List<Folder> Folders = new List<Folder>();
+        public static Folder GetFolderByName(string name)
+        {
+            return Folders.FirstOrDefault(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+        public static int GetFolderIndexByName(string name)
+        {
+            return Folders.FindIndex(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
     }
     class SaveLoadSystem : ModSystem
     {
@@ -37,20 +44,17 @@ namespace BossLoadouts.Common.Systems
             {
                 Directory.CreateDirectory(BasePath);
 
-                // Save current folders and loadouts
                 foreach (var folder in FoldersManager.Folders)
                 {
                     string folderPath = Path.Combine(BasePath, SanitizeFileName(folder.Name));
                     Directory.CreateDirectory(folderPath);
 
-                    // Clear old loadout files
                     foreach (var oldFile in Directory.GetFiles(folderPath, "*.dat"))
                         File.Delete(oldFile);
 
                     string loadoutsOrderPath = Path.Combine(folderPath, "loadouts.json");
                     File.WriteAllText(loadoutsOrderPath, JsonSerializer.Serialize(folder.Loadouts.Select(l => l.Name)));
 
-                    // Save each loadout
                     foreach (var loadout in folder.Loadouts)
                     {
                         string loadoutFilePath = Path.Combine(folderPath, SanitizeFileName(loadout.Name) + ".dat");
@@ -58,7 +62,9 @@ namespace BossLoadouts.Common.Systems
                         var loadoutTag = new TagCompound
                         {
                             ["Name"] = loadout.Name,
+                            ["ConsumedLifeCrystals"] = loadout.ConsumedLifeCrystals,
                             ["ConsumedLifeFruit"] = loadout.ConsumedLifeFruit,
+                            ["ConsumedManaCrystals"] = loadout.ConsumedManaCrystals,
                             ["Powerups"] = loadout.Powerups,
                             ["DownedBosses"] = loadout.downedBosses.Select(b => b ? (byte)1 : (byte)0).ToArray(),
                             ["Inventory"] = loadout.Inventory.Select(ItemIO.Save).ToList(),
@@ -72,22 +78,20 @@ namespace BossLoadouts.Common.Systems
                     }
                 }
 
-                // Save folder order
                 string orderPath = Path.Combine(BasePath, "folders.json");
                 File.WriteAllText(orderPath, JsonSerializer.Serialize(FoldersManager.Folders.Select(f => f.Name)));
 
-                // --- Delete unused folders ---
                 var currentFolderNames = new HashSet<string>(FoldersManager.Folders.Select(f => SanitizeFileName(f.Name)));
                 foreach (var dir in Directory.GetDirectories(BasePath))
                 {
                     string folderName = Path.GetFileName(dir);
-                    if (folderName == "folders.json") continue; // Just in case
+                    if (folderName == "folders.json") continue;
 
                     if (!currentFolderNames.Contains(folderName))
                     {
                         try
                         {
-                            Directory.Delete(dir, true); // true = recursive delete
+                            Directory.Delete(dir, true);
                         }
                         catch (Exception ex)
                         {
@@ -119,12 +123,10 @@ namespace BossLoadouts.Common.Systems
                     orderedFolderNames = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(orderPath));
                 }
 
-                // Get all folders by name for lookup
                 var folderDirs = Directory.GetDirectories(BasePath)
-                                          .Where(d => Path.GetFileName(d) != "folders.json") // Just in case
+                                          .Where(d => Path.GetFileName(d) != "folders.json")
                                           .ToDictionary(Path.GetFileName, d => d);
 
-                // Load in saved order
                 foreach (var name in orderedFolderNames)
                 {
                     if (!folderDirs.TryGetValue(name, out string folderDir))
@@ -134,10 +136,9 @@ namespace BossLoadouts.Common.Systems
                     if (folder != null)
                         FoldersManager.Folders.Add(folder);
 
-                    folderDirs.Remove(name); // Remove from dictionary to avoid duplicate loading
+                    folderDirs.Remove(name);
                 }
 
-                // Load any new folders not present in the saved order
                 foreach (var leftoverDir in folderDirs.Values)
                 {
                     var folder = LoadFolder(leftoverDir);
@@ -158,7 +159,6 @@ namespace BossLoadouts.Common.Systems
                 string folderName = Path.GetFileName(folderDir);
                 var folder = new Folder(folderName);
 
-                // Load order file if exists
                 string loadoutsOrderPath = Path.Combine(folderDir, "loadouts.json");
                 List<string> loadoutNamesOrder = null;
                 if (File.Exists(loadoutsOrderPath))
@@ -166,13 +166,11 @@ namespace BossLoadouts.Common.Systems
                     loadoutNamesOrder = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(loadoutsOrderPath));
                 }
 
-                // Get all loadout files mapped by sanitized name for lookup
                 var loadoutFiles = Directory.GetFiles(folderDir, "*.dat")
                                            .ToDictionary(f => Path.GetFileNameWithoutExtension(f), f => f);
 
                 if (loadoutNamesOrder != null)
                 {
-                    // Load loadouts in the saved order
                     foreach (var loadoutName in loadoutNamesOrder)
                     {
                         string sanitizedName = SanitizeFileName(loadoutName);
@@ -187,7 +185,6 @@ namespace BossLoadouts.Common.Systems
                     }
                 }
 
-                // Load any new loadouts not in the order file (append at the end)
                 foreach (var loadoutFile in loadoutFiles.Values)
                 {
                     var loadoutTag = TagIO.FromFile(loadoutFile);
@@ -210,6 +207,14 @@ namespace BossLoadouts.Common.Systems
             return new Loadout
             {
                 Name = loadoutTag.GetString("Name"),
+
+                ConsumedLifeCrystals = loadoutTag.ContainsKey("ConsumedLifeCrystals")
+                    ? loadoutTag.GetInt("ConsumedLifeCrystals")
+                    : Player.LifeCrystalMax,
+                ConsumedManaCrystals = loadoutTag.ContainsKey("ConsumedManaCrystals")
+                    ? loadoutTag.GetInt("ConsumedManaCrystals")
+                    : Player.ManaCrystalMax,
+
                 ConsumedLifeFruit = loadoutTag.GetInt("ConsumedLifeFruit"),
                 Powerups = loadoutTag.GetIntArray("Powerups"),
                 downedBosses = downedBytes.Select(b => b == 1).ToArray(),
@@ -238,141 +243,6 @@ namespace BossLoadouts.Common.Systems
             SaveGlobalData();
             BossLoadoutsSystem loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
             loadoutsSystem.HideUI();
-        }
-    }
-
-    class SaveLoadPlayer : ModPlayer
-    {
-        private int savedShroomLevel = 0;
-        private bool reTrippy = false;
-        public override void SaveData(TagCompound tag)
-        {
-            var modPlayer = Player.Calamity();
-            if (!modPlayer.trippy)
-            {
-                tag["shroomedLevel"] = 0;
-            }
-            else
-            {
-                tag["shroomedLevel"] = modPlayer.trippyLevel;
-            }
-        }
-
-        public override void LoadData(TagCompound tag)
-        {
-            savedShroomLevel = 0;
-            reTrippy = false;
-            if (tag.ContainsKey("shroomedLevel"))
-            {
-                int level = tag.GetInt("shroomedLevel");
-                var modPlayer = Player.Calamity();
-
-                if(level > 0)
-                {
-                    modPlayer.trippyLevel = level;
-                    modPlayer.trippy = level > 0;
-                }
-                else
-                {
-                    modPlayer.trippyLevel = 0;
-                    modPlayer.trippy = false;
-                    if (Player.HasBuff<Trippy>())
-                    {
-                        Player.ClearBuff(ModContent.BuffType<Trippy>());
-                    }
-                }
-            }
-            else if (tag.ContainsKey("shroomed"))
-            {
-                int level = tag.GetInt("shroomed");
-                var modPlayer = Player.Calamity();
-                if (level > 0)
-                {
-                    modPlayer.trippyLevel = level;
-                    modPlayer.trippy = level > 0;
-                }
-                else
-                {
-                    modPlayer.trippyLevel = 0;
-                    modPlayer.trippy = false;
-                    if (Player.HasBuff<Trippy>())
-                    {
-                        Player.ClearBuff(ModContent.BuffType<Trippy>());
-                    }
-                }
-            }
-        }
-
-        public override void OnEnterWorld()
-        {
-            var modPlayer = Player.Calamity();
-
-            if (modPlayer.trippyLevel > 0)
-            {
-                Player.AddBuff(ModContent.BuffType<Trippy>(), int.MaxValue);
-                modPlayer.trippy = true;
-            }
-            else
-            {
-                if (Player.HasBuff<Trippy>())
-                {
-                    Player.ClearBuff(ModContent.BuffType<Trippy>());
-                }
-                modPlayer.trippy = false;
-            }
-        }
-
-        public override void PostUpdateBuffs()
-        {
-            var modPlayer = Player.Calamity();
-            BossLoadoutsSystem loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
-
-            if (loadoutsSystem.BuffsEditorUI == null || loadoutsSystem.BuffsEditorUI.shroomedToggleButton == null)
-                return;
-
-            if (modPlayer.trippyLevel > 0 && (loadoutsSystem.BuffsEditorUI.shroomedToggleButton.BackgroundColor == Color.Green || loadoutsSystem.BuffsEditorUI.shroomedToggleButton.BackgroundColor == Color.DarkGreen))
-            {
-                if (!Player.HasBuff<Trippy>())
-                {
-                    Player.AddBuff(ModContent.BuffType<Trippy>(), 60);
-                }
-                modPlayer.trippy = true;
-            }
-            else
-            {
-                if (Player.HasBuff<Trippy>())
-                {
-                    Player.ClearBuff(ModContent.BuffType<Trippy>());
-                }
-                modPlayer.trippy = false;
-            }
-        }
-
-        public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genDust, ref PlayerDeathReason damageSource)
-        {
-            savedShroomLevel = Player.Calamity().trippyLevel;
-            if(savedShroomLevel != 0)
-            {
-                reTrippy = true;
-            }
-            else
-            {
-                reTrippy = false;
-            }
-            return base.PreKill(damage, hitDirection, pvp, ref playSound, ref genDust, ref damageSource);
-        }
-
-        public override void OnRespawn()
-        {
-            var modPlayer = Player.Calamity();
-
-            modPlayer.trippyLevel = savedShroomLevel;
-
-            if (reTrippy)
-            {
-                Player.AddBuff(ModContent.BuffType<Trippy>(), int.MaxValue);
-                modPlayer.trippy = true;
-            }
         }
     }
 }

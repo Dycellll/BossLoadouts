@@ -1,1 +1,6 @@
-"Keybinds.Toggle Loadouts UI.DisplayName": Toggle  Loadouts  U I
+Keybinds: {
+	"Toggle Loadouts UI.DisplayName": Toggle  Loadouts  U I
+	"Loadout Up.DisplayName": Loadout  Up
+	"Loadout Down.DisplayName": Loadout  Down
+	"Reload Current Loadout.DisplayName": Reload  Current  Loadout
+}

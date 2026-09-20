@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "nicN6uuSvDU=",
+  "dgSpecHash": "rKijPMc+7Xk=",
   "success": true,
-  "projectFilePath": "C:\\Users\\fale4\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\BossLoadouts\\BossLoadouts.csproj",
+  "projectFilePath": "/home/dycel/.local/share/Terraria/tModLoader/ModSources/BossLoadouts/BossLoadouts.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\fale4\\.nuget\\packages\\tmodloader.codeassist\\0.1.5\\tmodloader.codeassist.0.1.5.nupkg.sha512"
+    "/home/dycel/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.30/microsoft.aspnetcore.app.ref.8.0.30.nupkg.sha512"
   ],
   "logs": []
 }

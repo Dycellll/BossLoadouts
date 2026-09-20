@@ -13,10 +13,10 @@ namespace BossLoadouts.Systems
         internal BossLoadoutsUI LoadoutsUI;
         internal CreateFolderUI CreateFolderUI;
         internal RenameFolderUI RenameFolderUI;
-        internal FolderLoadoutsUI FolderLoadoutsUI;
-        internal RenameLoadoutUI RenameLoadoutUI;
-        internal BossDownedEditorUI DownedEditorUI;
-        internal PermanentBuffsEditorUI BuffsEditorUI;
+        public FolderLoadoutsUI FolderLoadoutsUI;
+        public RenameLoadoutUI RenameLoadoutUI;
+        public BossDownedEditorUI DownedEditorUI;
+        public PermanentBuffsEditorUI BuffsEditorUI;
         public UserInterface _loadoutsInterface;
 
         public override void Load()
@@ -38,8 +38,12 @@ namespace BossLoadouts.Systems
         {
             if (type.ToLower() == "loadouts")
             {
+                float scroll = LoadoutsUI?.foldersList?.ViewPosition ?? 0f;
+
                 _loadoutsInterface?.SetState(LoadoutsUI);
                 LoadoutsUI.RefreshFolders();
+
+                LoadoutsUI.foldersList.ViewPosition = scroll;
             }
             else if (type.ToLower() == "renamefolder")
             {

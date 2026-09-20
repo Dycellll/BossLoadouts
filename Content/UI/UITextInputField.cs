@@ -30,8 +30,7 @@ namespace BossLoadouts.UI
             BackgroundColor = new Color(30, 30, 60);
             BorderColor = new Color(80, 80, 120);
 
-            // Create our own font (or use a public one if available)
-            _font = FontAssets.MouseText.Value; // Fallback to our own measurement if this isn't available
+            _font = FontAssets.MouseText.Value;
         }
 
         public override void Update(GameTime gameTime)
@@ -79,13 +78,10 @@ namespace BossLoadouts.UI
             if (!Main.hasFocus || !Focused)
                 return;
 
-            // Let Terraria know we're typing text, so it enables input
             Main.drawingPlayerChat = true;
 
-            // Append input
             Text = Main.GetInputText(Text);
 
-            // Update cursor position
             _lastTextWidth = CalculateTextWidth(Text);
 
             var keyboardState = Keyboard.GetState();

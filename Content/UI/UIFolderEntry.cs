@@ -95,7 +95,6 @@ namespace BossLoadouts.UI
                 }, true)
             };
 
-            // Create a horizontal container for the buttons
             UIElement buttonRow = new UIElement
             {
                 Top = new StyleDimension(startTop, 0f),
@@ -105,7 +104,6 @@ namespace BossLoadouts.UI
             };
             Append(buttonRow);
 
-            // Add all buttons to the horizontal row
             foreach (var (text, action, isSquare) in buttons)
             {
                 var button = new UITextPanel<string>(text, 0.8f, large: false)
@@ -128,14 +126,12 @@ namespace BossLoadouts.UI
                 currentLeft += button.Width.Pixels + spacing;
             }
 
-            // Set the panel height to accommodate the buttons
-            Height.Set(startTop + buttonHeight + 10f, 0f); // 10f for bottom padding
+            Height.Set(startTop + buttonHeight + 10f, 0f);
         }
 
         private float CalculateButtonWidth(string text)
         {
-            // Calculate approximate width based on text length
-            return text.Length * 8f + 20f; // Adjust these values as needed
+            return text.Length * 8f + 20f;
         }
 
         protected override void DrawSelf(SpriteBatch spriteBatch)

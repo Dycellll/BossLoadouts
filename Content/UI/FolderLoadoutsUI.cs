@@ -11,6 +11,9 @@ using Terraria.ModLoader;
 using BossLoadouts.Systems;
 using BossLoadouts.Content.UI;
 using Microsoft.Xna.Framework;
+using BossLoadouts.Content;
+using Terraria.Audio;
+using Terraria.ID;
 
 public class FolderLoadoutsUI : UIState
 {
@@ -40,8 +43,8 @@ public class FolderLoadoutsUI : UIState
         currentFolder = folder;
 
         mainPanel = new UIPanel();
-        mainPanel.Width.Set(500f, 0f);   // Match BossLoadoutsUI panel width
-        mainPanel.Height.Set(500f, 0f);  // Match BossLoadoutsUI panel height
+        mainPanel.Width.Set(500f, 0f);
+        mainPanel.Height.Set(500f, 0f);
         mainPanel.HAlign = 0.5f;
         mainPanel.VAlign = 0.5f;
         Append(mainPanel);
@@ -53,7 +56,7 @@ public class FolderLoadoutsUI : UIState
 
         addLoadoutButton = new UITextPanel<string>("Add Loadout");
         addLoadoutButton.Width.Set(120f, 0f);
-        addLoadoutButton.Height.Set(40f, 0f);  // Match UIFolderEntry button height
+        addLoadoutButton.Height.Set(40f, 0f);
         addLoadoutButton.Top.Set(40f, 0f);
         addLoadoutButton.Left.Set(20f, 0f);
         addLoadoutButton.WithFadedMouseOver();
@@ -65,12 +68,15 @@ public class FolderLoadoutsUI : UIState
 
         backButton = new UITextPanel<string>("Back");
         backButton.Width.Set(80f, 0f);
-        backButton.Height.Set(40f, 0f);  // Match UIFolderEntry button height
+        backButton.Height.Set(40f, 0f);
         backButton.Top.Set(40f, 0f);
         backButton.Left.Set(-100f, 1f);
         backButton.WithFadedMouseOver();
         backButton.OnLeftClick += (evt, element) =>
         {
+            currentFolder.ScrollPosition = loadoutsList.ViewPosition;
+            FoldersManager.Folders[FoldersManager.GetFolderIndexByName(folder.Name)].ScrollPosition = loadoutsList.ViewPosition;
+
             var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
             loadoutsSystem.ShowUI("loadouts");
         };
@@ -79,23 +85,32 @@ public class FolderLoadoutsUI : UIState
         scrollbar = new UIScrollbar();
         scrollbar.HAlign = 0.95f;
         scrollbar.Top.Set(90f, 0f);
-        scrollbar.Height.Set(-90, 1f);   // Match BossLoadoutsUI scrollbar height 45%
+        scrollbar.Height.Set(-90, 1f);
+        scrollbar.OnScrollWheel += (evt, element) =>
+        {
+            currentFolder.ScrollPosition = loadoutsList.ViewPosition;
+            FoldersManager.Folders[FoldersManager.GetFolderIndexByName(folder.Name)].ScrollPosition = loadoutsList.ViewPosition;
+        };
         mainPanel.Append(scrollbar);
 
         loadoutsList = new UIList();
-        loadoutsList.Width.Set(0, 0.9f);  // Leave room for scrollbar & padding
+        loadoutsList.Width.Set(0, 0.9f);
         loadoutsList.Height.Set(-90f, 1f);
         loadoutsList.Top.Set(90f, 0f);
-        loadoutsList.ListPadding = 8f;  // Match spacing in UIFolderEntry
+        loadoutsList.ListPadding = 8f;
         loadoutsList.ManualSortMethod = (e) => { };
         loadoutsList.SetScrollbar(scrollbar);
         mainPanel.Append(loadoutsList);
 
+        loadoutsList.ViewPosition = FoldersManager.Folders[FoldersManager.GetFolderIndexByName(folder.Name)].ScrollPosition;
+        loadoutsList.ViewPosition = folder.ScrollPosition;
         RefreshLoadouts();
     }
 
     public void RefreshLoadouts()
     {
+        float scroll = loadoutsList.ViewPosition;
+
         loadoutsList.Clear();
 
         if (currentFolder == null)
@@ -106,6 +121,8 @@ public class FolderLoadoutsUI : UIState
             var loadoutEntry = CreateLoadoutEntry(loadout);
             loadoutsList.Add(loadoutEntry);
         }
+
+        loadoutsList.ViewPosition = scroll;
     }
 
     private UIPanel CreateLoadoutEntry(Loadout loadout)
@@ -125,24 +142,31 @@ public class FolderLoadoutsUI : UIState
         panel.Append(loadoutName);
 
         float spacing = 8f;
-        float buttonHeight = 40f;  // Match UIFolderEntry button height
-        float buttonPadding = 8f;  // Match UIFolderEntry padding
-        float startTop = 35f;      // Match UIFolderEntry startTop
+        float buttonHeight = 40f;
+        float buttonPadding = 8f;
+        float startTop = 35f;
         float currentLeft = 0f;
 
         var buttonInfos = new (string Text, Action Action, bool IsSquare)[]
         {
-            ("Equip", () => loadout.LoadGear(Main.player[Main.myPlayer]), false),
+            ("Equip", () =>
+            {
+                loadout.LoadGear(Main.player[Main.myPlayer]);
+                Main.LocalPlayer.GetModPlayer<MyPlayer>().SetCurrentLoadout(currentFolder, loadout);
+                SoundEngine.PlaySound(SoundID.MenuTick);
+            }, false),
             ("Rename", () =>
             {
                 var system = ModContent.GetInstance<BossLoadoutsSystem>();
                 system.RenameLoadoutUI = new RenameLoadoutUI();
                 system.RenameLoadoutUI.loadoutToRename = loadout;
+                system.RenameLoadoutUI.folderContext = currentFolder;
                 system.ShowUI("renameloadout");
             }, false),
             ("Update", () =>
             {
                 loadout.SaveGear(Main.player[Main.myPlayer]);
+                Main.LocalPlayer.GetModPlayer<MyPlayer>().SetCurrentLoadout(currentFolder, loadout);
                 SaveLoadSystem.SaveGlobalData();
                 Main.NewText($"Successfully updated loadout {loadout.Name}.", Color.Green);
             }, false),
@@ -193,7 +217,6 @@ public class FolderLoadoutsUI : UIState
 
     private float CalculateButtonWidth(string text)
     {
-        // Approx width similar to UIFolderEntry
         return text.Length * 8f + 20f;
     }
 
@@ -204,7 +227,6 @@ public class FolderLoadoutsUI : UIState
 
         if (newIndex >= 0 && newIndex < currentFolder.Loadouts.Count)
         {
-            // Swap positions
             var temp = currentFolder.Loadouts[newIndex];
             currentFolder.Loadouts[newIndex] = loadout;
             currentFolder.Loadouts[index] = temp;

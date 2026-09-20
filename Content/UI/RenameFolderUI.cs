@@ -8,6 +8,8 @@ using Terraria.GameInput;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
+using BossLoadouts.Content;
+using System;
 
 namespace BossLoadouts.Content.UI
 {
@@ -59,9 +61,16 @@ namespace BossLoadouts.Content.UI
                     Main.NewText("Folder name cannot be empty!", 255, 0, 0);
                     return;
                 }
+
+                string oldName = folderToRename.Name;
                 FoldersManager.Folders.Remove(folderToRename);
                 folderToRename.Name = folderNameInput.Text;
                 FoldersManager.Folders.Add(folderToRename);
+
+                var myPlayer = Main.LocalPlayer.GetModPlayer<MyPlayer>();
+                if (myPlayer.CurrentFolderName != null && myPlayer.CurrentFolderName.Equals(oldName, StringComparison.OrdinalIgnoreCase))
+                    myPlayer.CurrentFolderName = folderToRename.Name;
+
                 SaveLoadSystem.SaveGlobalData();
                 var loadoutsSystem = ModContent.GetInstance<BossLoadoutsSystem>();
                 loadoutsSystem.LoadoutsUI.RefreshFolders();
